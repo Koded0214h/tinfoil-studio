@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(unzip -p tinfoil-studio-PRD.docx word/document.xml)",
+      "Bash(python3 -c \"import docx\")",
+      "Bash(python3 *)",
+      "Bash(mv \"src/assets/268779.mp4\" \"src/assets/intro.mp4\")",
+      "Bash(mv \"src/assets/Animation #3 \\(Dark theme\\).mp4\" \"src/assets/loop-animation.mp4\")",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npm ls *)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/src/App.jsx)",
+      "Bash(pkill -f \"vite\")",
+      "Bash(kill 3171 3188)",
+      "Bash(git checkout *)",
+      "Bash(git add *)"
+    ]
+  }
+}
