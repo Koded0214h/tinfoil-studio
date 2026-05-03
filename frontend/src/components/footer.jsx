@@ -11,7 +11,7 @@ export function Footer() {
           </span>
           <div className="text-sm">
             <p className="font-medium tracking-tight text-white">
-              tinfoil-studio
+              Tinfoil Studio
             </p>
             <p className="font-mono text-[0.65rem] uppercase tracking-[0.3em] text-white/35">
               MVP · v1.0
@@ -22,13 +22,13 @@ export function Footer() {
           A pipeline-first content platform. Brief in, social-ready video out.
         </p>
         <a
-          href="https://github.com/koded/tinfoil-studio"
+          href="https://github.com/Koded0214h/Tinfoil Studio"
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-xs text-white/70 transition-colors hover:bg-white/10"
         >
           <GitHubMark className="h-3.5 w-3.5" />
-          github.com/koded/tinfoil-studio
+          github.com/koded/Tinfoil Studio
         </a>
       </div>
     </footer>

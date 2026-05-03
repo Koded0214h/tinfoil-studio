@@ -45,14 +45,20 @@ def _make_engine():
             connect_args={"check_same_thread": False},
         )
 
-    # PostgreSQL — pre-ping detects dropped connections before reuse
+    # PostgreSQL — Neon serverless needs a generous connect timeout for cold-start
+    # and a small pool (Neon free tier caps at 5 concurrent connections)
     return create_async_engine(
         url,
         echo=False,
         pool_pre_ping=True,
-        pool_size=5,
-        max_overflow=10,
-        pool_recycle=1800,
+        pool_size=2,
+        max_overflow=3,
+        pool_recycle=300,      # recycle before Neon's 5-min idle disconnect
+        pool_timeout=60,       # wait up to 60s for a pool slot
+        connect_args={
+            "timeout": 30,     # asyncpg connect timeout — covers Neon cold-start
+            "command_timeout": 60,
+        },
     )
 
 

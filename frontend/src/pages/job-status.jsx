@@ -13,8 +13,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
+import { CpuArchitecture } from "@/components/ui/cpu-architecture";
+import { PostWorkflowModal } from "@/components/ui/post-workflow-modal";
 import { useJobPoll } from "@/hooks/use-job-poll";
-import { publishJob } from "@/api/jobs";
 import { resolveAssetUrl } from "@/api/client";
 import { cn } from "@/lib/utils";
 
@@ -39,23 +40,18 @@ export default function JobStatusPage() {
   const { jobId } = useParams();
   const navigate = useNavigate();
   const { job, loading, error, refresh } = useJobPoll(jobId);
+  const [showPostModal, setShowPostModal] = React.useState(false);
 
-  const [publishing, setPublishing] = React.useState(false);
-  const [publishError, setPublishError] = React.useState(null);
-
-  const onApproveAndPost = async () => {
-    if (!job) return;
-    setPublishing(true);
-    setPublishError(null);
-    try {
-      await publishJob(job.id, { platform: job.platform });
-      await refresh();
-    } catch (err) {
-      setPublishError(err.detail || err.message || "Could not publish.");
-    } finally {
-      setPublishing(false);
-    }
-  };
+  if (loading && !job) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-6 px-6">
+        <CpuArchitecture width="320" height="160" text="VERA" className="text-white/15" />
+        <p className="font-mono text-xs uppercase tracking-[0.4em] text-white/30 animate-pulse">
+          loading pipeline…
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="relative mx-auto max-w-5xl px-6 pb-24 pt-32">
@@ -73,7 +69,7 @@ export default function JobStatusPage() {
             job · {jobId}
           </p>
           <h1 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            {job?.prompt || (loading ? "Loading…" : "Untitled brief")}
+            {job?.prompt || "Untitled brief"}
           </h1>
           {job && (
             <div className="flex flex-wrap items-center gap-2 text-xs text-white/50">
@@ -165,50 +161,30 @@ export default function JobStatusPage() {
             />
           </div>
 
-          {job.status === "VIDEO_READY" && (
+          {(job.status === "VIDEO_READY" || job.status === "POSTED") && (
             <div className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] p-5">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-emerald-300" />
                 <div>
                   <p className="text-sm font-medium text-white">
-                    Video is ready for review.
+                    {job.status === "POSTED" ? "Video has been posted." : "Video is ready for review."}
                   </p>
                   <p className="text-xs text-white/55">
-                    Approve to publish to{" "}
-                    <span className="capitalize">{job.platform}</span> via
-                    Upload-Post.
+                    {job.status === "POSTED"
+                      ? "Post it again to another platform or re-post."
+                      : <>Approve to publish to <span className="capitalize">{job.platform}</span> via Upload-Post.</>}
                   </p>
                 </div>
               </div>
               <Button
-                onClick={onApproveAndPost}
-                disabled={publishing}
+                onClick={() => setShowPostModal(true)}
                 size="lg"
                 className="min-w-[180px]"
               >
-                {publishing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Posting
-                  </>
-                ) : (
-                  <>
-                    <Send className="mr-2 h-4 w-4" />
-                    Approve &amp; Post
-                  </>
-                )}
+                <Send className="mr-2 h-4 w-4" />
+                {job.status === "POSTED" ? "Post again" : "Approve & Post"}
               </Button>
             </div>
-          )}
-
-          {publishError && (
-            <ErrorPanel
-              className="mt-6"
-              message={publishError}
-              onRetry={onApproveAndPost}
-              retryLabel="Try again"
-              title="Could not publish"
-            />
           )}
 
           {job.status === "POSTED" && job.post_url && (
@@ -216,6 +192,12 @@ export default function JobStatusPage() {
           )}
         </>
       )}
+
+      <PostWorkflowModal
+        jobId={jobId}
+        open={showPostModal}
+        onClose={() => { setShowPostModal(false); refresh(); }}
+      />
     </main>
   );
 }

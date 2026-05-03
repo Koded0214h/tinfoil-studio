@@ -57,7 +57,7 @@ export function Pipeline() {
           </span>
           <h2 className="max-w-3xl text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl md:text-5xl">
             From brief to posted clip
-            <span className="text-white/40"> — without you in the loop.</span>
+            <span className="text-white/40"> without you in the loop.</span>
           </h2>
           <p className="max-w-2xl text-base text-white/55">
             One avatar, one operator, one click. Every step is asynchronous,

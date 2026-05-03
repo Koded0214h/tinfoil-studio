@@ -21,7 +21,7 @@ export default function LandingPage() {
             </span>
           </>
         }
-        subtitle="tinfoil-studio turns a one-line brief into a 9:16 video posted to your socials — in under two hours, with zero manual hand-off. Vera is the face."
+        subtitle="Tinfoil Studio turns a one-line brief into a 9:16 video posted to your socials — in under two hours, with zero manual hand-off. Vera is the face."
         actions={[
           { label: "Generate a clip", href: "#brief", variant: "default" },
           { label: "How it works", href: "#pipeline", variant: "outline" },

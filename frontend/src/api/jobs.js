@@ -56,3 +56,8 @@ export async function publishJob(jobId, { platform, scheduledAt } = {}) {
   });
   return data;
 }
+
+export async function publishToplatform(jobId, platform) {
+  const { data } = await api.post(`/api/jobs/${jobId}/publish`, { platform });
+  return data; // { success, url, error }
+}
