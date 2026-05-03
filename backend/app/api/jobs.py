@@ -2,6 +2,7 @@ import uuid
 import os
 import aiofiles
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFile, File, Form, Query
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from app.database import get_db
@@ -81,6 +82,42 @@ async def get_job(job_id: str, db: AsyncSession = Depends(get_db)):
     return job
 
 
+class PublishRequest(BaseModel):
+    platform: str
+
+
+@router.post("/{job_id}/publish")
+async def publish_job(
+    job_id: str,
+    body: PublishRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Post to a single platform. Returns {success, url, error}."""
+    result = await db.execute(select(Job).where(Job.id == job_id))
+    job = result.scalar_one_or_none()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    if not job.video_url:
+        raise HTTPException(status_code=400, detail="No video URL on job")
+
+    avatar_result = await db.execute(select(Avatar).where(Avatar.avatar_id == job.avatar_id))
+    avatar = avatar_result.scalar_one_or_none()
+    title = job.prompt or "Vera content"
+
+    result_data = await posting_svc.post_to_platform(
+        video_url=job.video_url,
+        platform=body.platform,
+        title=title,
+    )
+
+    if result_data.get("success"):
+        job.post_url = result_data.get("url") or job.post_url
+        job.status = "POSTED"
+        await db.commit()
+
+    return result_data
+
+
 @router.post("/{job_id}/post", response_model=JobResponse)
 async def post_job(
     job_id: str,
@@ -106,13 +143,12 @@ async def post_job(
     video_public_url = _ensure_public_url(job.video_url)
 
     try:
-        post_url = await posting_svc.post_video(
+        result_data = await posting_svc.post_to_platform(
             video_url=video_public_url,
             platform=platform,
-            caption=caption,
-            scheduled_at=body.scheduled_at,
+            title=caption,
         )
-        job.post_url = post_url
+        job.post_url = result_data.get("url") or ""
         job.status = "POSTED"
         await db.commit()
         await db.refresh(job)
@@ -138,9 +174,7 @@ async def _save_upload(upload: UploadFile) -> str:
 
 
 async def _run_pipeline_task(job_id: str):
-    from app.database import AsyncSessionLocal
-    async with AsyncSessionLocal() as db:
-        await pipeline_svc.run_pipeline(job_id, db)
+    await pipeline_svc.run_pipeline(job_id)
 
 
 def _build_caption(avatar, prompt: str, platform: str) -> str:

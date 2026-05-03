@@ -1,50 +1,41 @@
 import httpx
-from datetime import datetime
 from app.config import get_settings
 
 UPLOAD_POST_BASE = "https://api.upload-post.com/api"
 
 
-async def post_video(
-    video_url: str,
-    platform: str,
-    caption: str,
-    scheduled_at: datetime | None = None,
-) -> str:
-    """Post video via Upload-Post API. Returns the public post URL."""
+async def post_to_platform(video_url: str, platform: str, title: str) -> dict:
+    """Post video to one platform via Upload-Post. Returns {success, url, error}."""
     settings = get_settings()
-    headers = {
-        "Authorization": f"Bearer {settings.upload_post_api_key}",
-        "Content-Type": "application/json",
+    headers = {"Authorization": f"Apikey {settings.upload_post_api_key}"}
+
+    user = _get_user(platform, settings)
+    data = {
+        "user": user,
+        "platform[]": platform,
+        "video": video_url,
+        "title": title,
     }
 
-    username = _get_username(platform, settings)
-    payload: dict = {
-        "videoUrl": video_url,
-        "platforms": [{"platform": platform, "username": username}],
-        "caption": caption,
+    async with httpx.AsyncClient(timeout=120) as client:
+        resp = await client.post(f"{UPLOAD_POST_BASE}/upload", headers=headers, data=data)
+        result = resp.json()
+
+    if not result.get("success"):
+        return {"success": False, "url": None, "error": result.get("message", "Upload failed")}
+
+    platform_result = result.get("results", {}).get(platform, {})
+    return {
+        "success": platform_result.get("success", False),
+        "url": platform_result.get("url") or platform_result.get("post_url"),
+        "error": platform_result.get("error"),
     }
-    if scheduled_at:
-        payload["scheduledAt"] = scheduled_at.isoformat()
-
-    async with httpx.AsyncClient(timeout=60) as client:
-        resp = await client.post(f"{UPLOAD_POST_BASE}/posts", headers=headers, json=payload)
-        resp.raise_for_status()
-        data = resp.json()
-
-    post_url = (
-        data.get("postUrl")
-        or data.get("post_url")
-        or data.get("url")
-        or f"https://{platform}.com/p/pending"
-    )
-    return post_url
 
 
-def _get_username(platform: str, settings) -> str:
+def _get_user(platform: str, settings) -> str:
     mapping = {
         "instagram": settings.instagram_user,
         "tiktok": settings.tiktok_user,
-        "youtube": "",
+        "youtube": settings.instagram_user,
     }
-    return mapping.get(platform, "")
+    return mapping.get(platform, settings.instagram_user)

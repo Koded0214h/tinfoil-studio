@@ -57,13 +57,13 @@ export function Navbar() {
             Jobs
           </Link>
           <Link
-            to={onLanding ? "/#brief" : "/"}
+            to="/prompt"
             className={cn(
               "rounded-full px-3.5 py-1.5 text-xs font-medium text-white",
               "bg-primary/90 shadow-[0_0_0_1px_hsl(var(--primary)/0.5),0_8px_30px_-10px_hsl(var(--primary)/0.7)] transition-colors hover:bg-primary",
             )}
           >
-            Generate
+            Get Started
           </Link>
         </div>
       </motion.div>

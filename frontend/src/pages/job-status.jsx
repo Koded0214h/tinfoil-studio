@@ -13,6 +13,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/status-badge";
+import { CpuArchitecture } from "@/components/ui/cpu-architecture";
 import { useJobPoll } from "@/hooks/use-job-poll";
 import { publishJob } from "@/api/jobs";
 import { resolveAssetUrl } from "@/api/client";
@@ -73,7 +74,12 @@ export default function JobStatusPage() {
             job · {jobId}
           </p>
           <h1 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            {job?.prompt || (loading ? "Loading…" : "Untitled brief")}
+            {job?.prompt || (loading ? (
+              <div className="flex items-center gap-4">
+                <CpuArchitecture className="h-12 w-24 text-primary" />
+                <span className="animate-pulse">Architecting...</span>
+              </div>
+            ) : "Untitled brief")}
           </h1>
           {job && (
             <div className="flex flex-wrap items-center gap-2 text-xs text-white/50">
