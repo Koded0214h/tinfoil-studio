@@ -24,9 +24,19 @@ async def post_to_platform(video_url: str, platform: str, title: str) -> dict:
     if not result.get("success"):
         return {"success": False, "url": None, "error": result.get("message", "Upload failed")}
 
+    # Async/background response — Upload-Post accepted but is processing in background
+    if "results" not in result:
+        return {
+            "success": True,
+            "url": None,
+            "error": None,
+            "async": True,
+            "request_id": result.get("request_id"),
+        }
+
     platform_result = result.get("results", {}).get(platform, {})
     return {
-        "success": platform_result.get("success", False),
+        "success": platform_result.get("success", True),
         "url": platform_result.get("url") or platform_result.get("post_url"),
         "error": platform_result.get("error"),
     }

@@ -269,12 +269,12 @@ export default function PromptPage() {
               </div>
               <div className="flex items-center gap-3">
                 {job && <StatusPill status={job.status} />}
-                {job?.status === "VIDEO_READY" && (
+                {(job?.status === "VIDEO_READY" || job?.status === "POSTED") && (
                   <button
                     onClick={() => setShowPostModal(true)}
                     className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary transition-all hover:bg-primary/20"
                   >
-                    Post
+                    {job?.status === "POSTED" ? "Post again" : "Post"}
                   </button>
                 )}
               </div>

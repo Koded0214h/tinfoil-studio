@@ -115,7 +115,7 @@ export function IntroVideo({ className, onComplete }) {
             className="pointer-events-none absolute inset-x-0 bottom-[14%] z-30 flex flex-col items-center gap-3"
           >
             <span className="text-[0.68rem] uppercase tracking-[0.55em] text-white/55">
-              tinfoil-studio · AI talent
+              Tinfoil Studio · AI talent
             </span>
             <ScrollNudge />
           </motion.div>

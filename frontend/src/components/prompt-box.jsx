@@ -244,7 +244,7 @@ export function PromptBox({ className }) {
             )}
           </AnimatePresence>
 
-          <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="mt-5 flex items-center gap-2">
             <SegmentedControl
               icon={Clock}
               label="Duration"
@@ -327,11 +327,10 @@ function SegmentedControl({ icon: Icon, label, options, value, onChange }) {
     <div
       role="group"
       aria-label={label}
-      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1"
+      className="inline-flex items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.03] p-1"
     >
-      <span className="ml-2 mr-1 inline-flex items-center gap-1.5 text-[0.65rem] uppercase tracking-[0.25em] text-white/45">
+      <span className="ml-1.5 mr-0.5 text-white/40">
         <Icon className="h-3 w-3" />
-        {label}
       </span>
       {options.map((option) => {
         const active = option.value === value;
@@ -341,8 +340,8 @@ function SegmentedControl({ icon: Icon, label, options, value, onChange }) {
             type="button"
             onClick={() => onChange(option.value)}
             className={cn(
-              "relative rounded-full px-3 py-1 text-xs font-medium transition-colors",
-              active ? "text-white" : "text-white/55 hover:text-white",
+              "relative rounded-full px-2.5 py-1 text-xs font-medium transition-colors",
+              active ? "text-white" : "text-white/45 hover:text-white",
             )}
           >
             {active && (
@@ -388,7 +387,6 @@ function PlatformControl({ value, onChange }) {
               />
             )}
             <Icon className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{label}</span>
           </button>
         );
       })}
@@ -410,11 +408,9 @@ function ToggleChip({ icon: Icon, label, hint, active, onClick }) {
       aria-pressed={active}
     >
       <Icon className="h-3.5 w-3.5" />
-      <span>{label}</span>
-      <span className="text-white/35">{hint}</span>
       <span
         className={cn(
-          "ml-1 h-1.5 w-1.5 rounded-full",
+          "h-1.5 w-1.5 rounded-full",
           active ? "bg-primary" : "bg-white/20",
         )}
       />

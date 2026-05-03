@@ -31,7 +31,7 @@ export function Navbar() {
             t
           </span>
           <span className="text-sm font-medium tracking-tight text-white">
-            tinfoil<span className="text-white/40">-studio</span>
+            Tinfoil<span className="text-white/40">-Studio</span>
           </span>
         </Link>
 
