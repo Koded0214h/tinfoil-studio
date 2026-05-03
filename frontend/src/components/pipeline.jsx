@@ -48,7 +48,7 @@ export function Pipeline() {
   return (
     <section
       id="pipeline"
-      className="relative w-full px-6 pb-32 pt-24 sm:pt-32"
+      className="relative w-full overflow-hidden px-4 pb-32 pt-24 sm:px-6 sm:pt-32"
     >
       <div className="mx-auto max-w-6xl">
         <div className="mb-14 flex flex-col items-start gap-3 sm:items-center sm:text-center">

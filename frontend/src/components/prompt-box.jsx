@@ -179,10 +179,12 @@ export function PromptBox({ className }) {
 
   return (
     <div className={cn("relative w-full", className)}>
-      {/* Ambient halo behind the box, picking up the lamp's blue cast. */}
+      {/* Ambient halo behind the box, picking up the lamp's blue cast. The
+          extents are tightened on mobile so the blur radius can't push the
+          page wider than the viewport on phone screens. */}
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-x-16 -inset-y-20 -z-10 blur-3xl"
+        className="pointer-events-none absolute -inset-x-2 -inset-y-8 -z-10 blur-2xl sm:-inset-x-16 sm:-inset-y-20 sm:blur-3xl"
         animate={{ opacity: [0.45, 0.7, 0.45] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         style={{

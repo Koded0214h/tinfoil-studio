@@ -109,26 +109,24 @@ export function IntroVideo({ className, onReady, onTap, canTap }) {
       {/* Edge bleed: fades any rectangular video boundary into the page. */}
       <div className="pointer-events-none absolute inset-0 z-10 video-seam" />
 
-      {/* Mobile: video sits inside a generous frame so it reads as the focal
-          object on a black page. Desktop: object-cover for full-bleed cinema. */}
-      <div className="relative z-0 flex h-full w-full items-center justify-center">
-        <video
-          ref={videoRef}
-          src={introMp4}
-          autoPlay
-          muted
-          playsInline
-          preload="auto"
-          disablePictureInPicture
-          controlsList="nodownload nofullscreen noremoteplayback"
-          aria-hidden="true"
-          className={cn(
-            "block max-h-[78svh] w-auto max-w-[95vw] object-contain",
-            "sm:max-h-[88svh]",
-            "md:absolute md:inset-0 md:h-full md:w-full md:max-h-none md:max-w-none md:object-cover",
-          )}
-        />
-      </div>
+      {/* The video is `object-cover` on every breakpoint so its rectangular
+          frame bleeds edge-to-edge of the section. With true-black bg on both
+          the page and the video itself, there is no boundary to see — even
+          on mobile. (Earlier we tried `object-contain` for a "centered look"
+          on phones, but that exposed the video's letterbox bars as a faint
+          rectangle and gave the game away.) */}
+      <video
+        ref={videoRef}
+        src={introMp4}
+        autoPlay
+        muted
+        playsInline
+        preload="auto"
+        disablePictureInPicture
+        controlsList="nodownload nofullscreen noremoteplayback"
+        aria-hidden="true"
+        className="absolute inset-0 z-0 block h-full w-full object-cover"
+      />
 
       <AnimatePresence>
         {showWordmark && (

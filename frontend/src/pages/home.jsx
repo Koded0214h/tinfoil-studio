@@ -9,7 +9,7 @@ import { Pipeline } from "@/components/pipeline";
 
 export default function HomePage() {
   return (
-    <main className="relative w-full bg-background">
+    <main className="relative w-full overflow-x-clip bg-background">
       <Hero
         eyebrow="brief in · social-ready clip out"
         title={
@@ -39,7 +39,7 @@ function BriefSection() {
   return (
     <section
       id="brief"
-      className="relative w-full px-4 pb-24 pt-20 sm:px-6 sm:pt-28"
+      className="relative w-full overflow-hidden px-4 pb-24 pt-20 sm:px-6 sm:pt-28"
     >
       {/* Soft top fade so the lamp's glow reads as bleeding into this section
           rather than terminating at a hard edge. */}

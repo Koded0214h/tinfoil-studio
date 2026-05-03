@@ -21,7 +21,7 @@ function App() {
   const hideFooter = isIntro || location.pathname === "/prompt";
 
   return (
-    <div id="top" className="relative min-h-screen w-full bg-background">
+    <div id="top" className="relative min-h-screen w-full overflow-x-clip bg-background">
       {!hideChrome && <Navbar />}
 
       <Routes>
