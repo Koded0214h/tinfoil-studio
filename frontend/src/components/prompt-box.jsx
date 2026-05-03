@@ -1,5 +1,6 @@
 import * as React from "react";
-import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
   Image as ImageIcon,
@@ -7,11 +8,18 @@ import {
   Clock,
   Send,
   Loader2,
+  X as XIcon,
+  AlertTriangle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { InstagramMark, TikTokMark, YouTubeMark } from "@/components/icons/brand-marks";
+import {
+  InstagramMark,
+  TikTokMark,
+  YouTubeMark,
+} from "@/components/icons/brand-marks";
+import { createJob } from "@/api/jobs";
 
 const PROMPT_SUGGESTIONS = [
   "Vera in a Tokyo neon alley at midnight, slow cinematic push-in…",
@@ -33,13 +41,21 @@ const PLATFORMS = [
   { value: "youtube", label: "YouTube", Icon: YouTubeMark },
 ];
 
-function useTypewriterPlaceholder(phrases, { typeMs = 38, holdMs = 1600, eraseMs = 18 } = {}) {
+function useTypewriterPlaceholder(
+  phrases,
+  { typeMs = 38, holdMs = 1600, eraseMs = 18 } = {},
+) {
   const [text, setText] = React.useState("");
   const indexRef = React.useRef(0);
 
   React.useEffect(() => {
     let cancelled = false;
     let timer;
+
+    const sleep = (ms) =>
+      new Promise((resolve) => {
+        timer = setTimeout(resolve, ms);
+      });
 
     const run = async () => {
       while (!cancelled) {
@@ -59,11 +75,6 @@ function useTypewriterPlaceholder(phrases, { typeMs = 38, holdMs = 1600, eraseMs
       }
     };
 
-    const sleep = (ms) =>
-      new Promise((resolve) => {
-        timer = setTimeout(resolve, ms);
-      });
-
     run();
 
     return () => {
@@ -76,28 +87,69 @@ function useTypewriterPlaceholder(phrases, { typeMs = 38, holdMs = 1600, eraseMs
 }
 
 export function PromptBox({ className }) {
+  const navigate = useNavigate();
+  const fileInputRef = React.useRef(null);
+
   const [value, setValue] = React.useState("");
   const [duration, setDuration] = React.useState(10);
   const [platform, setPlatform] = React.useState("instagram");
   const [use3d, setUse3d] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [refImage, setRefImage] = React.useState(null);
 
   const placeholder = useTypewriterPlaceholder(PROMPT_SUGGESTIONS);
   const showTypewriter = value.length === 0;
 
-  const onSubmit = (event) => {
+  const previewUrl = React.useMemo(() => {
+    if (!refImage) return null;
+    return URL.createObjectURL(refImage);
+  }, [refImage]);
+  React.useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const onSubmit = async (event) => {
     event.preventDefault();
-    if (!value.trim() || submitting) return;
+    if (submitting) return;
+    if (!value.trim() && !refImage) {
+      setError("Add a prompt or reference image to brief Vera.");
+      return;
+    }
     setSubmitting(true);
-    // Front-end stub for the eventual POST /api/jobs call. The PRD's
-    // generation pipeline takes minutes, so on the real wire this would
-    // create a PENDING job and switch to the polling status page.
-    setTimeout(() => setSubmitting(false), 1800);
+    setError(null);
+    try {
+      const job = await createJob({
+        prompt: value.trim() || null,
+        avatarId: "vera",
+        duration,
+        use3d,
+        platform,
+        inputImage: refImage,
+      });
+      navigate(`/jobs/${job.id}`);
+    } catch (err) {
+      setError(err.detail || err.message || "Could not start the job.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const onPickFile = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Reference must be an image file.");
+      return;
+    }
+    setError(null);
+    setRefImage(file);
   };
 
   return (
     <div className={cn("relative w-full", className)}>
-      {/* Ambient halo behind the box, picking up the lamp's blue cast. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -inset-x-10 -inset-y-12 -z-10 opacity-70 blur-3xl"
@@ -111,7 +163,6 @@ export function PromptBox({ className }) {
         onSubmit={onSubmit}
         className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-1 backdrop-blur-xl transition-colors focus-within:border-white/20"
       >
-        {/* Animated gradient ring on focus / hover */}
         <span
           aria-hidden="true"
           className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-within:opacity-100"
@@ -143,7 +194,8 @@ export function PromptBox({ className }) {
               onChange={(event) => setValue(event.target.value)}
               rows={3}
               spellCheck={false}
-              className="block w-full resize-none bg-transparent text-base leading-relaxed text-white placeholder:text-transparent focus:outline-none sm:text-lg"
+              disabled={submitting}
+              className="block w-full resize-none bg-transparent text-base leading-relaxed text-white placeholder:text-transparent focus:outline-none disabled:opacity-60 sm:text-lg"
               aria-label="Describe the video you want Vera to make"
             />
             {showTypewriter && (
@@ -156,6 +208,41 @@ export function PromptBox({ className }) {
               </div>
             )}
           </div>
+
+          <AnimatePresence>
+            {refImage && (
+              <motion.div
+                initial={{ opacity: 0, y: 6, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: 6, height: 0 }}
+                className="mt-4"
+              >
+                <div className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-2">
+                  {previewUrl && (
+                    <img
+                      src={previewUrl}
+                      alt={refImage.name}
+                      className="h-12 w-12 rounded object-cover"
+                    />
+                  )}
+                  <div className="min-w-0 flex-1 text-xs">
+                    <p className="truncate text-white">{refImage.name}</p>
+                    <p className="text-white/40">
+                      Will be passed as Seedance reference frame.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setRefImage(null)}
+                    className="rounded-full p-1.5 text-white/55 transition-colors hover:bg-white/10 hover:text-white"
+                    aria-label="Remove reference image"
+                  >
+                    <XIcon className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-3">
             <SegmentedControl
@@ -175,12 +262,35 @@ export function PromptBox({ className }) {
             />
             <button
               type="button"
+              onClick={() => fileInputRef.current?.click()}
               className="ml-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 transition-colors hover:bg-white/10"
             >
               <ImageIcon className="h-3.5 w-3.5" />
-              Reference image
+              {refImage ? "Replace reference" : "Reference image"}
             </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={onPickFile}
+              className="hidden"
+            />
           </div>
+
+          <AnimatePresence>
+            {error && (
+              <motion.p
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                role="alert"
+                className="mt-4 inline-flex items-center gap-2 rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-200"
+              >
+                <AlertTriangle className="h-3.5 w-3.5" />
+                {error}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
           <div className="mt-5 flex items-end justify-between gap-4 border-t border-white/5 pt-4">
             <p className="max-w-md text-xs text-white/35">
@@ -190,7 +300,7 @@ export function PromptBox({ className }) {
             <Button
               type="submit"
               size="lg"
-              disabled={!value.trim() || submitting}
+              disabled={submitting || (!value.trim() && !refImage)}
               className="min-w-[140px]"
             >
               {submitting ? (
@@ -311,4 +421,3 @@ function ToggleChip({ icon: Icon, label, hint, active, onClick }) {
     </button>
   );
 }
-
