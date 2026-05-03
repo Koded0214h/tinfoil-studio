@@ -54,7 +54,7 @@ export default function JobStatusPage() {
   }
 
   return (
-    <main className="relative mx-auto max-w-5xl px-6 pb-24 pt-32">
+    <main className="relative mx-auto max-w-5xl px-4 pb-24 pt-28 sm:px-6 sm:pt-32">
       <button
         onClick={() => navigate("/")}
         className="mb-8 inline-flex items-center gap-2 text-sm text-white/55 transition-colors hover:text-white"

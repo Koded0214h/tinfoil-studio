@@ -52,7 +52,7 @@ export default function HistoryPage() {
   const currentPage = Math.floor(offset / PAGE_SIZE) + 1;
 
   return (
-    <main className="relative mx-auto max-w-6xl px-6 pb-24 pt-32">
+    <main className="relative mx-auto max-w-6xl px-4 pb-24 pt-28 sm:px-6 sm:pt-32">
       <header className="flex flex-wrap items-end justify-between gap-6">
         <div>
           <p className="font-mono text-[0.65rem] uppercase tracking-[0.4em] text-white/40">
@@ -90,8 +90,8 @@ export default function HistoryPage() {
         ))}
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]">
-        <table className="w-full text-left text-sm">
+      <div className="mt-8 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="bg-white/[0.02] text-[0.65rem] uppercase tracking-[0.3em] text-white/40">
             <tr>
               <th className="px-5 py-3 font-normal">Brief</th>

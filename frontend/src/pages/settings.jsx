@@ -85,7 +85,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <main className="relative mx-auto max-w-3xl px-6 pb-24 pt-32">
+    <main className="relative mx-auto max-w-3xl px-4 pb-24 pt-28 sm:px-6 sm:pt-32">
       <header className="space-y-2">
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.4em] text-white/40">
           settings · avatar
