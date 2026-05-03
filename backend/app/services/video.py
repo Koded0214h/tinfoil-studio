@@ -5,6 +5,7 @@ import uuid
 import httpx
 import aiofiles
 from app.config import get_settings
+from app.services import storage as storage_svc
 
 ARK_BASE_URL = "https://ark.ap-southeast.bytepluses.com/api/v3"
 ARK_MODEL = "seedance-1-0-pro-250528"
@@ -30,7 +31,8 @@ async def generate_video(
         duration_val,
         resolution,
     )
-    return await _download_file(video_url, suffix=".mp4")
+    local_path = await _download_file(video_url, suffix=".mp4")
+    return await storage_svc.upload_file(local_path, resource_type="video")
 
 
 def _submit_and_poll(

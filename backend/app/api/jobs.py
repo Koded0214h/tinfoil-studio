@@ -9,6 +9,7 @@ from app.models.job import Job
 from app.schemas.job import JobCreate, JobResponse, JobListResponse, JobPostRequest
 from app.services import pipeline as pipeline_svc
 from app.services import posting as posting_svc
+from app.services import storage as storage_svc
 from app.models.avatar import Avatar
 from app.config import get_settings
 
@@ -133,7 +134,7 @@ async def _save_upload(upload: UploadFile) -> str:
     content = await upload.read()
     async with aiofiles.open(dest, "wb") as f:
         await f.write(content)
-    return f"/storage/{filename}"
+    return await storage_svc.upload_file(dest, resource_type="image")
 
 
 async def _run_pipeline_task(job_id: str):
