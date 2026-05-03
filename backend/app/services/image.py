@@ -4,6 +4,7 @@ import httpx
 import aiofiles
 from openai import AsyncOpenAI
 from app.config import get_settings
+from app.services import storage as storage_svc
 
 _client: AsyncOpenAI | None = None
 
@@ -31,7 +32,7 @@ async def generate_image(prompt: str, visual_prompt_prefix: str) -> str:
 
     image_url = response.data[0].url
     local_path = await _download_file(image_url, suffix=".png")
-    return local_path
+    return await storage_svc.upload_file(local_path, resource_type="image")
 
 
 async def _download_file(url: str, suffix: str = "") -> str:

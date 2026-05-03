@@ -1,4 +1,5 @@
 aiofiles==25.1.0
+cloudinary==1.44.0
 aiosqlite==0.22.1
 alembic==1.18.4
 annotated-doc==0.0.4

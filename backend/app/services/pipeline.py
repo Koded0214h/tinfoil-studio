@@ -79,7 +79,8 @@ async def run_pipeline(job_id: str, db: AsyncSession) -> None:
 
 
 def _to_url(path: str) -> str:
-    """Convert a local storage path to a relative URL path."""
+    if path.startswith("http://") or path.startswith("https://"):
+        return path
     settings = get_settings()
     storage = os.path.abspath(settings.storage_path)
     abs_path = os.path.abspath(path)

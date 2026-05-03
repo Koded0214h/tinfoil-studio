@@ -4,6 +4,7 @@ import uuid
 import httpx
 import aiofiles
 from app.config import get_settings
+from app.services import storage as storage_svc
 
 TRIPO_BASE = "https://api.tripo3d.ai/v2/openapi"
 POLL_INTERVAL = 10
@@ -36,7 +37,8 @@ async def generate_3d_model(image_url: str) -> tuple[str, str]:
 
     glb_url = await _poll_task(task_id, headers)
     local_path = await _download_file(glb_url, suffix=".glb")
-    return task_id, local_path
+    cloud_url = await storage_svc.upload_file(local_path, resource_type="raw")
+    return task_id, cloud_url
 
 
 async def _poll_task(task_id: str, headers: dict) -> str:

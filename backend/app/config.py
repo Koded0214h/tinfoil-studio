@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     tiktok_user: str = ""
     storage_path: str = "./storage"
     cors_origins: str = "http://localhost:5173,http://localhost:3000"
+    cloudinary_cloud_name: str = ""
+    cloudinary_api_key: str = ""
+    cloudinary_api_secret: str = ""
 
     class Config:
         env_file = ".env"
