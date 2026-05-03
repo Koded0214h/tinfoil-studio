@@ -289,7 +289,7 @@ export function PromptBox({ className }) {
             )}
           </AnimatePresence>
 
-          <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="mt-5 flex flex-nowrap items-center gap-1.5 overflow-x-auto pb-1 sm:flex-wrap sm:gap-3 sm:overflow-visible sm:pb-0">
             <SegmentedControl
               icon={Clock}
               label="Duration"
@@ -308,10 +308,13 @@ export function PromptBox({ className }) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 transition-colors hover:bg-white/10"
+              aria-label={refImage ? "Replace reference image" : "Add reference image"}
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-2 py-1.5 text-xs text-white/70 transition-colors hover:bg-white/10 sm:px-3"
             >
               <ImageIcon className="h-3.5 w-3.5" />
-              {refImage ? "Replace" : "Reference"}
+              <span className="hidden sm:inline">
+                {refImage ? "Replace" : "Reference"}
+              </span>
             </button>
             <input
               ref={fileInputRef}
@@ -395,11 +398,12 @@ function SegmentedControl({ icon: Icon, label, options, value, onChange }) {
     <div
       role="group"
       aria-label={label}
-      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1"
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.03] p-1 sm:gap-1"
     >
-      <span className="ml-2 mr-1 inline-flex items-center gap-1.5 text-[0.65rem] uppercase tracking-[0.25em] text-white/45">
+      {/* Leading icon-only on mobile, icon+label from sm up. */}
+      <span className="ml-1.5 mr-0.5 inline-flex items-center gap-1.5 text-[0.65rem] uppercase tracking-[0.25em] text-white/45 sm:ml-2 sm:mr-1">
         <Icon className="h-3 w-3" />
-        {label}
+        <span className="hidden sm:inline">{label}</span>
       </span>
       {options.map((option) => {
         const active = option.value === value;
@@ -409,7 +413,7 @@ function SegmentedControl({ icon: Icon, label, options, value, onChange }) {
             type="button"
             onClick={() => onChange(option.value)}
             className={cn(
-              "relative rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              "relative rounded-full px-2 py-1 text-xs font-medium transition-colors sm:px-3",
               active ? "text-white" : "text-white/55 hover:text-white",
             )}
           >
@@ -433,7 +437,7 @@ function PlatformControl({ value, onChange }) {
     <div
       role="group"
       aria-label="Target platform"
-      className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] p-1"
+      className="inline-flex shrink-0 items-center gap-0.5 rounded-full border border-white/10 bg-white/[0.03] p-1 sm:gap-1"
     >
       {PLATFORMS.map(({ value: v, label, Icon }) => {
         const active = value === v;
@@ -444,7 +448,7 @@ function PlatformControl({ value, onChange }) {
             onClick={() => onChange(v)}
             aria-label={label}
             className={cn(
-              "relative inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",
+              "relative inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium transition-colors sm:px-3",
               active ? "text-white" : "text-white/55 hover:text-white",
             )}
           >
@@ -469,20 +473,23 @@ function ToggleChip({ icon: Icon, label, hint, active, onClick }) {
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
+      aria-label={hint ? `${label} (${hint})` : label}
+      title={hint ? `${label} · ${hint}` : label}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors",
+        "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-1.5 text-xs transition-colors sm:px-3",
         active
           ? "border-primary/50 bg-primary/15 text-white"
           : "border-white/10 bg-white/[0.03] text-white/65 hover:bg-white/10",
       )}
-      aria-pressed={active}
     >
       <Icon className="h-3.5 w-3.5" />
-      <span>{label}</span>
-      <span className="text-white/35">{hint}</span>
+      {/* Label and hint compress to icon-only on mobile. */}
+      <span className="hidden sm:inline">{label}</span>
+      <span className="hidden text-white/35 sm:inline">{hint}</span>
       <span
         className={cn(
-          "ml-1 h-1.5 w-1.5 rounded-full",
+          "h-1.5 w-1.5 rounded-full sm:ml-1",
           active ? "bg-primary" : "bg-white/20",
         )}
       />

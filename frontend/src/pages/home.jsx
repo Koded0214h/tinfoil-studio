@@ -11,7 +11,6 @@ export default function HomePage() {
   return (
     <main className="relative w-full overflow-x-clip bg-background">
       <Hero
-        eyebrow="brief in · social-ready clip out"
         title={
           <>
             AI talent.{" "}
